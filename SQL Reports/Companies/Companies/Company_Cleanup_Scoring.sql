@@ -1,6 +1,6 @@
 /*
 
-File       :    Company_Cleanup.sql.sql
+File       :    Company_Cleanup_Scoring.sql
 Version    :    v1.0
 Author     :    https://github.com/svbui
 Purpose    :    Create a report that identifies potentially dormant or obsolete companies and ranks them for cleanup, while still keeping recently added companies visible for validation. 
@@ -32,16 +32,15 @@ Purpose    :    Create a report that identifies potentially dormant or obsolete 
                 - Database Access
                     - CW PSA On-Premise login to your SQL Server
                     - CW PSA as SaaS, make sure you have CDA Access
-                - SQL Tooling like SQl Server Management Studio
+                - SQL Tooling like SQL Server Management Studio
 
 */
 
-DECLARE @ExcludeInvoicesAfter date = '2025-01-01';
-DECLARE @StaleSince          date = '2024-01-01';
-
--- Recently added window (inclusive start, exclusive end)
-DECLARE @RecentStart         date = '2025-01-01';
-DECLARE @RecentEnd           date = '2027-01-01';
+DECLARE @ExcludeInvoicesAfter date = '2025-01-01'; -- If a company has had in Invoice after this date, consider it to be an active Company and do not add in the list
+DECLARE @StaleSince          date = '2024-01-01'; -- When no Invoice, Ticker or Project is found after this date consider the Company stale
+DECLARE @RecentStart         date = '2025-01-01'; -- Exclude Companies that have been created after this date but before @RecentEnd
+DECLARE @RecentEnd           date = '2027-01-01'; -- Exclude Companies that have been created before this date but after @RecentStart
+DECLARE @CompanyStatus       varchar(50) = 'Inactive/Gone';
 
 WITH CompanyBase AS (
     SELECT
@@ -55,7 +54,7 @@ WITH CompanyBase AS (
         , c.Date_Entered    AS Company_Date_Entered
         , c.Last_Update_UTC AS Company_Last_Updated_UTC
     FROM cwwebapp_dustin.dbo.v_rpt_Company AS c
-    WHERE c.Company_Status_Desc <> 'Inactive/Gone'
+    WHERE c.Company_Status_Desc <> @CompanyStatus
       AND NOT EXISTS (
           SELECT 1
           FROM cwwebapp_dustin.dbo.v_rpt_Invoices i
@@ -160,7 +159,6 @@ Flags AS (
 
 SELECT
       f.Company_RecID
-    , f.Company_ID
     , f.Company_Name
     , f.Company_Type_Desc
     , f.Company_Status_Desc            AS Company_Status
