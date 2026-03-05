@@ -53,11 +53,11 @@ WITH CompanyBase AS (
         , c.Location        AS Company_TerritoryOrCountry
         , c.Date_Entered    AS Company_Date_Entered
         , c.Last_Update_UTC AS Company_Last_Updated_UTC
-    FROM cwwebapp_dustin.dbo.v_rpt_Company AS c
+    FROM dbo.v_rpt_Company AS c
     WHERE c.Company_Status_Desc <> @CompanyStatus
       AND NOT EXISTS (
           SELECT 1
-          FROM cwwebapp_dustin.dbo.v_rpt_Invoices i
+          FROM dbo.v_rpt_Invoices i
           WHERE i.Company_RecID = c.Company_RecID
             AND i.Date_Invoice >= @ExcludeInvoicesAfter
       )
@@ -66,7 +66,7 @@ InvoiceAgg AS (
     SELECT
           i.Company_RecID
         , MAX(i.Date_Invoice) AS Last_Invoice_Date
-    FROM cwwebapp_dustin.dbo.v_rpt_Invoices i
+    FROM dbo.v_rpt_Invoices i
     GROUP BY i.Company_RecID
 ),
 LastInvoiceDetail AS (
@@ -83,7 +83,7 @@ LastInvoiceDetail AS (
                 PARTITION BY i.Company_RecID
                 ORDER BY i.Date_Invoice DESC, i.Invoice_Number DESC
               ) AS rn
-        FROM cwwebapp_dustin.dbo.v_rpt_Invoices i
+        FROM dbo.v_rpt_Invoices i
     ) x
     WHERE x.rn = 1
 ),
@@ -91,7 +91,7 @@ ActiveAgreements AS (
     SELECT
           a.Company_RecID
         , COUNT(*) AS Active_Agreements
-    FROM cwwebapp_dustin.dbo.v_rpt_AgreementList a
+    FROM dbo.v_rpt_AgreementList a
     WHERE a.Agreement_Status = 'Active'
       AND (a.DateEnd IS NULL OR a.DateEnd >= CAST(GETDATE() AS date))
     GROUP BY a.Company_RecID
@@ -100,15 +100,15 @@ LastTicketUpdate AS (
     SELECT
           s.Company_RecID
         , MAX(s.Last_Update) AS Last_Ticket_Updated
-    FROM cwwebapp_dustin.dbo.v_rpt_Service s
+    FROM dbo.v_rpt_Service s
     GROUP BY s.Company_RecID
 ),
 LastProjectUpdate AS (
     SELECT
           s.Company_RecID
         , MAX(p.Last_Update) AS Last_Project_Updated
-    FROM cwwebapp_dustin.dbo.v_rpt_Project p
-    INNER JOIN cwwebapp_dustin.dbo.v_rpt_Service s
+    FROM dbo.v_rpt_Project p
+    INNER JOIN dbo.v_rpt_Service s
         ON s.SR_Service_RecID = p.SR_Service_RecID
     GROUP BY s.Company_RecID
 ),
