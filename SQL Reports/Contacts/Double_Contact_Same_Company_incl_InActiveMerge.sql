@@ -1,3 +1,6 @@
+USE cwwebapp_contoso;   -- TODO: replace with your Database name
+GO
+
 /*
 
 File       :    Double_Contact_Same_Company_incl_InActiveMerge.sql
