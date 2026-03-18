@@ -1,3 +1,6 @@
+USE cwwebapp_contoso;   -- TODO: replace with your Database name
+GO
+
 /*
 
 File       :    Double_Contacts_Same_Company.sql
@@ -44,10 +47,10 @@ WITH EmailData AS (
         ISNULL(c.Default_Flag, 0)  AS Primary_Contact,
 
         cc.Contact_Communication_RecID
-    FROM cwwebapp_dustin.dbo.v_rpt_ContactCommunication AS cc
-    INNER JOIN cwwebapp_dustin.dbo.v_rpt_Contact AS c
+    FROM dbo.v_rpt_ContactCommunication AS cc
+    INNER JOIN dbo.v_rpt_Contact AS c
         ON c.Contact_RecID = cc.Contact_RecID
-    INNER JOIN cwwebapp_dustin.dbo.v_rpt_Company AS co
+    INNER JOIN dbo.v_rpt_Company AS co
         ON co.Company_RecID = c.Company_RecID
     WHERE
         cc.Communication_Name = 'Email'
