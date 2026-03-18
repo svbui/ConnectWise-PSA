@@ -1,3 +1,12 @@
+USE cwwebapp_contoso;   -- TODO: replace with your Database name
+GO
+
+DECLARE @ExcludeInvoicesAfter date = '2025-01-01'; -- If a company has had in Invoice after this date, consider it to be an active Company and do not add in the list
+DECLARE @StaleSince          date = '2024-01-01'; -- When no Invoice, Ticker or Project is found after this date consider the Company stale
+DECLARE @RecentStart         date = '2025-01-01'; -- Exclude Companies that have been created after this date but before @RecentEnd
+DECLARE @RecentEnd           date = '2027-01-01'; -- Exclude Companies that have been created before this date but after @RecentStart
+DECLARE @CompanyStatus       varchar(50) = 'Inactive/Gone';
+
 /*
 
 File       :    Company_Cleanup_Scoring.sql
@@ -36,11 +45,6 @@ Purpose    :    Create a report that identifies potentially dormant or obsolete 
 
 */
 
-DECLARE @ExcludeInvoicesAfter date = '2025-01-01'; -- If a company has had in Invoice after this date, consider it to be an active Company and do not add in the list
-DECLARE @StaleSince          date = '2024-01-01'; -- When no Invoice, Ticker or Project is found after this date consider the Company stale
-DECLARE @RecentStart         date = '2025-01-01'; -- Exclude Companies that have been created after this date but before @RecentEnd
-DECLARE @RecentEnd           date = '2027-01-01'; -- Exclude Companies that have been created before this date but after @RecentStart
-DECLARE @CompanyStatus       varchar(50) = 'Inactive/Gone';
 
 WITH CompanyBase AS (
     SELECT
